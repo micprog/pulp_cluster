@@ -66,15 +66,15 @@ module axi2mem_wrap
     .rst_ni                ( rst_ni               ),
     //.slave                 ( axi_slave            ),
 
-    .tcdm_master_req_o                 ( s_tcdm_bus_req       ),
-    .tcdm_master_add_o                ( s_tcdm_bus_add       ),
-    .tcdm_master_type_o                  ( s_tcdm_bus_wen       ),
-    .tcdm_master_data_o                ( s_tcdm_bus_wdata     ),
-    .tcdm_master_be_o                  ( s_tcdm_bus_be        ),
+    .tcdm_master_req_o     ( s_tcdm_bus_req       ),
+    .tcdm_master_add_o     ( s_tcdm_bus_add       ),
+    .tcdm_master_type_o    ( s_tcdm_bus_wen       ),
+    .tcdm_master_data_o    ( s_tcdm_bus_wdata     ),
+    .tcdm_master_be_o      ( s_tcdm_bus_be        ),
     .tcdm_master_gnt_i     ( s_tcdm_bus_gnt       ),
 
     .tcdm_master_r_valid_i ( s_tcdm_bus_r_valid   ),
-    .tcdm_master_r_data_i                ( s_tcdm_bus_r_rdata   ),
+    .tcdm_master_r_data_i  ( s_tcdm_bus_r_rdata   ),
 
     .busy_o                ( busy_o               ),
     .test_en_i             ( test_en_i            ),

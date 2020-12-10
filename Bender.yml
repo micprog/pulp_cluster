@@ -30,6 +30,7 @@ dependencies:
   ibex:                 { git: "git@github.com:micprog/ibex.git", rev: "30d7472f5a56bc1d59e914e863e6cf8a5908495d" } # To be updated with lowRISC dependency
   scm:                  { git: "git@github.com:pulp-platform/scm.git", version: 1.0.1}
   hwpe-mac-engine:      { git: "git@github.com:micprog/hwpe-mac-engine.git", rev: "v1.2.1-bender" } # To be updated with pulp-platform dependency
+  lowrisc_ecc:          { path: "../lowrisc_ecc" }
   # apu_cluster ?
   # sp_icache ?
 

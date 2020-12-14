@@ -27,7 +27,7 @@ dependencies:
   common_cells:         { git: "git@github.com:pulp-platform/common_cells.git", version: 1.13.1 }
   tech_cells_generic:   { git: "git@github.com:pulp-platform/tech_cells_generic.git", version: 0.2.2 }
   riscv:                { git: "git@github.com:micprog/cv32e40p.git", rev: "pulpissimo-v3.4.1"} # To be updated to openhwgroup repository
-  ibex:                 { git: "git@github.com:lowRISC/ibex.git", rev: "b148f3af51066ac3537c7c6eb4acbc17004bf868" }
+  ibex:                 { git: "git@github.com:micprog/ibex.git", rev: "9b187fe756e5a8123d6686e20011c25ce3e82e2e" } # To be updated with lowRISC dependency
   scm:                  { git: "git@github.com:pulp-platform/scm.git", version: 1.0.1}
   hwpe-mac-engine:      { git: "git@github.com:micprog/hwpe-mac-engine.git", rev: "v1.2.1-bender" } # To be updated with pulp-platform dependency
   # apu_cluster ?

@@ -303,20 +303,25 @@ module core_region
 `else
       ibex_core #(
 `endif
-        .PMPEnable                ( 1'b0              ),
-        .MHPMCounterNum           ( 10                ),
-        .MHPMCounterWidth         ( 40                ),
-        .RV32E                    ( CORE_TYPE_CL == 2 ),
-        .RV32M                    ( CORE_TYPE_CL == 1 ),
-        .RV32B                    ( 1'b0              ),
-        .BranchTargetALU          ( 1'b0              ),
-        .WritebackStage           ( 1'b0              ),
-        .MultiplierImplementation ( "fast"            ),
-        .ICache                   ( 1'b0              ),
-        .DbgTriggerEn             ( 1'b1              ),
-        .SecureIbex               ( 1'b0              ),
-        .DmHaltAddr               ( 32'h1A110800      ),
-        .DmExceptionAddr          ( 32'h1A110808      )
+        .PMPEnable        ( 1'b0              ),
+        .PMPGranularity   ( 0                 ),
+        .PMPNumRegions    ( 4                 ),
+        .MHPMCounterNum   ( 10                ),
+        .MHPMCounterWidth ( 40                ),
+        .RV32E            ( CORE_TYPE_CL == 2 ),
+        .RV32M            ( CORE_TYPE_CL == 1 ? ibex_pkg::RV32MFast : ibex_pkg::RV32MNone ),
+        .RV32B            ( ibex_pkg::RV32BNone ),
+        .RegFile          ( ibex_pkg::RegFileFF ),
+        .BranchTargetALU  ( 1'b0              ),
+        .WritebackStage   ( 1'b0              ),
+        .ICache           ( 1'b0              ),
+        .ICacheECC        ( 1'b0              ),
+        .BranchPredictor  ( 1'b0              ),
+        .DbgTriggerEn     ( 1'b1              ),
+        .DbgHwBreakNum    ( 1                 ),
+        .SecureIbex       ( 1'b0              ),
+        .DmHaltAddr       ( 32'h1A110800      ),
+        .DmExceptionAddr  ( 32'h1A110808      )
       ) IBEX_CORE (
         .clk_i                 ( clk_i              ),
         .rst_ni                ( rst_ni             ),
@@ -327,22 +332,22 @@ module core_region
         .boot_addr_i           ( boot_addr          ),
 
         // Instruction Memory Interface:  Interface to Instruction Logaritmic interconnect: Req->grant handshake
-        .instr_addr_o          ( core_instr_addr    ),
         .instr_req_o           ( core_instr_req     ),
-        .instr_rdata_i         ( core_instr_r_rdata ),
         .instr_gnt_i           ( core_instr_gnt     ),
         .instr_rvalid_i        ( core_instr_r_valid ),
+        .instr_addr_o          ( core_instr_addr    ),
+        .instr_rdata_i         ( core_instr_r_rdata ),
         .instr_err_i           ( 1'b0               ),
 
         // Data memory interface:
-        .data_addr_o           ( s_core_bus.add     ),
         .data_req_o            ( s_core_bus.req     ),
-        .data_be_o             ( s_core_bus.be      ),
-        .data_rdata_i          ( s_core_bus.r_rdata ),
-        .data_we_o             ( s_core_bus.we      ),
         .data_gnt_i            ( s_core_bus.gnt     ),
-        .data_wdata_o          ( s_core_bus.wdata   ),
         .data_rvalid_i         ( s_core_bus.r_valid ),
+        .data_we_o             ( s_core_bus.we      ),
+        .data_be_o             ( s_core_bus.be      ),
+        .data_addr_o           ( s_core_bus.add     ),
+        .data_wdata_o          ( s_core_bus.wdata   ),
+        .data_rdata_i          ( s_core_bus.r_rdata ),
         .data_err_i            ( 1'b0               ),
 
         .irq_software_i        ( 1'b0               ),
@@ -358,6 +363,8 @@ module core_region
         .debug_req_i           ( debug_req_i        ),
 
         .fetch_enable_i        ( fetch_en_i         ),
+        .alert_minor_o         (),
+        .alert_major_o         (),
         .core_sleep_o          ( core_sleep         )
       );
       assign core_busy_o = ~core_sleep;

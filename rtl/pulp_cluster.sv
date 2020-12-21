@@ -110,7 +110,9 @@ module pulp_cluster
   parameter APU_WOP_CPU             = 6,
   parameter WAPUTYPE                = 3,
   parameter APU_NDSFLAGS_CPU        = 15,
-  parameter APU_NUSFLAGS_CPU        = 5
+  parameter APU_NUSFLAGS_CPU        = 5,
+
+  parameter ECC                     = 0  // Experimental ECC feature - in development
 )
 (
   input  logic                             clk_i,
@@ -439,8 +441,8 @@ module pulp_cluster
    //----------------------------------------------------------------------//
    
   // log interconnect -> TCDM memory banks (SRAM)
-  TCDM_BANK_MEM_BUS s_tcdm_bus_sram[NB_TCDM_BANKS-1:0]();
-
+  TCDM_BANK_MEM_BUS         s_tcdm_bus_sram[NB_TCDM_BANKS-1:0]();
+  logic [NB_TCDM_BANKS-1:0] s_tcdm_bus_gnt;
 
   //***************************************************
   /* asynchronous AXI interfaces at CLUSTER/SOC interface */
@@ -692,6 +694,7 @@ module pulp_cluster
     .mperiph_slave      ( s_mperiph_xbar_bus[NB_MPERIPHS-1:0] ),
 
     .tcdm_sram_master   ( s_tcdm_bus_sram                     ),
+    .tcdm_gnt_i         ( s_tcdm_bus_gnt                      ),
 
     .speriph_master     ( s_xbar_speriph_bus                  ),
 
@@ -1373,14 +1376,16 @@ module pulp_cluster
   /* TCDM banks */
   tcdm_banks_wrap #(
     .BANK_SIZE ( TCDM_NUM_ROWS ),
-    .NB_BANKS  ( NB_TCDM_BANKS )
+    .NB_BANKS  ( NB_TCDM_BANKS ),
+    .ECC       ( ECC           )
   ) tcdm_banks_i (
     .clk_i       ( clk_cluster     ),
     .rst_ni      ( s_rst_n         ),
     .init_ni     ( s_init_n        ),
     .test_mode_i ( test_mode_i     ),
     .pwdn_i      ( 1'b0            ),
-    .tcdm_slave  ( s_tcdm_bus_sram )   //PMU ??
+    .tcdm_slave  ( s_tcdm_bus_sram ),   //PMU ??
+    .tcdm_gnt_o  ( s_tcdm_bus_gnt )
   );
   
   /* AXI interconnect infrastructure (slices, size conversion) */ 

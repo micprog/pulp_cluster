@@ -46,6 +46,7 @@ module cluster_interconnect_wrap
   XBAR_TCDM_BUS.Slave                  dma_slave[NB_DMAS-1:0], //FIXME IGOR --> check NB_CORES depend ASK DAVIDE
   XBAR_TCDM_BUS.Slave                  mperiph_slave[NB_MPERIPHS-1:0],
   TCDM_BANK_MEM_BUS.Master             tcdm_sram_master[NB_TCDM_BANKS-1:0],
+  input logic [NB_TCDM_BANKS-1:0]      tcdm_gnt_i,
   XBAR_PERIPH_BUS.Master               speriph_master[NB_SPERIPHS-1:0],
   input logic [1:0]                    TCDM_arb_policy_i
 );
@@ -224,7 +225,7 @@ module cluster_interconnect_wrap
         begin
           s_data_ts_set_q[i]        <= s_data_ts_set_int[i];
                                             // NORMAL MODE//                                                                       // DURING SET
-          s_tcdm_bus_sram_rvalid[i] <= ( s_tcdm_bus_sram_req[i] & ~s_data_ts_set_int[i]  & ~s_data_ts_set_q[i] ) | (s_tcdm_bus_sram_req[i] & ~s_data_ts_set_int[i]  & s_data_ts_set_q[i] );
+          s_tcdm_bus_sram_rvalid[i] <= tcdm_gnt_i[i] & (( s_tcdm_bus_sram_req[i] & ~s_data_ts_set_int[i]  & ~s_data_ts_set_q[i] ) | (s_tcdm_bus_sram_req[i] & ~s_data_ts_set_int[i]  & s_data_ts_set_q[i] ));
           if(s_tcdm_bus_sram_req[i])
             s_tcdm_bus_sram_rID[i] <= s_tcdm_bus_sram_ID[i];
         end
@@ -289,7 +290,7 @@ module cluster_interconnect_wrap
     .data_wdata_o        (  s_tcdm_bus_sram_wdata  ),
     .data_be_o           (  s_tcdm_bus_sram_be     ),
     .data_ID_o           (  s_tcdm_bus_sram_ID     ),
-    .data_gnt_i          (  {NB_TCDM_BANKS{1'b1}}  ),
+    .data_gnt_i          (  tcdm_gnt_i             ),
     
     .data_r_rdata_i      (  s_tcdm_bus_sram_rdata  ), 
     .data_r_valid_i      (  s_tcdm_bus_sram_rvalid ),

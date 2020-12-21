@@ -40,91 +40,67 @@ module tcdm_banks_wrap
   parameter ECC       = 0      // Experimental ECC feature - in development
 )
 (
-  input  logic               clk_i,
-  input  logic               rst_ni,
-  input  logic               init_ni,
-  input  logic               pwdn_i,
-  input  logic               test_mode_i,
+  input  logic                clk_i,
+  input  logic                rst_ni,
+  input  logic                init_ni,
+  input  logic                pwdn_i,
+  input  logic                test_mode_i,
 
-  TCDM_BANK_MEM_BUS.Slave    tcdm_slave[NB_BANKS-1:0]
+  TCDM_BANK_MEM_BUS.Slave     tcdm_slave[NB_BANKS-1:0],
+  output logic [NB_BANKS-1:0] tcdm_gnt_o
 );
-
-  localparam DATA_WIDTH = ECC == 1 ? 40 : 32;
-  localparam BE_WIDTH   = ECC == 1 ? 5  :  4;
 
   generate
     for(genvar i=0; i<NB_BANKS; i++) begin : banks_gen
 
 `ifndef PULP_FPGA_EMUL
-      logic                         bank_req;
-      logic                         bank_we;
-      logic [$clog2(BANK_SIZE)-1:0] bank_add;
-      logic [DATA_WIDTH-1:0]        bank_wdata;
-      logic [BE_WIDTH-1:0]          bank_be;
-      logic [DATA_WIDTH-1:0]        bank_rdata;
 
-      if ( ECC == 1 ) begin : ECC_assign
-        // Adds additional byte for {valid_bit, ECC_bits[6:0]}
-        // Valid bit currently used to differentiate sw (ECC working) from sb and sh (be != 4'b1111)
-
-        logic [31:0] ecc_decoded;
-        assign bank_req =  tcdm_slave[i].req;
-        assign bank_we  = ~tcdm_slave[i].wen;
-        assign bank_add =  tcdm_slave[i].add[$clog2(BANK_SIZE)-1:0];
-
-        prim_secded_39_32_enc ecc_encode (
-          .in  ( tcdm_slave[i].wdata ),
-          .out ( bank_wdata[38:0] )
-        );
-
-        assign bank_be = { 1'b1, tcdm_slave[i].be };
+      if ( ECC == 0 ) begin
+        assign tcdm_gnt_o[i] = 1'b1;
         
-        prim_secded_39_32_dec ecc_decode (
-          .in         ( bank_rdata[38:0]    ),
-          .d_o        ( ecc_decoded ),
-          .syndrome_o (),
-          .err_o      ()
+        tc_sram #(
+          .NumWords  ( BANK_SIZE ), // Number of Words in data array
+          .DataWidth ( 32        ), // Data signal width
+          .ByteWidth ( 8         ), // Width of a data byte
+          .NumPorts  ( 1         ), // Number of read and write ports
+          .Latency   ( 1         )  // Latency when the read data is available
+        ) i_bank (
+          .clk_i,                     // Clock
+          .rst_ni,                    // Asynchronous reset active low
+
+          .req_i   (  tcdm_slave[i].req                        ), // request
+          .we_i    ( ~tcdm_slave[i].wen                        ), // write enable
+          .addr_i  (  tcdm_slave[i].add[$clog2(BANK_SIZE)-1:0] ), // request address
+          .wdata_i (  tcdm_slave[i].wdata                      ), // write data
+          .be_i    (  tcdm_slave[i].be                         ), // write byte enable
+
+          .rdata_o (  tcdm_slave[i].rdata                      )  // read data
         );
-        
-        always_comb begin : proc_rdata_assign
-          case ( bank_rdata[39] )
-            1'b0    : tcdm_slave[i].rdata = bank_rdata[31:0];
-            1'b1    : tcdm_slave[i].rdata = ecc_decoded;
-            default : tcdm_slave[i].rdata = bank_rdata[31:0];
-          endcase
-        end
+      end else if ( ECC == 1 ) begin
+        ecc_sram_wrap #(
+          .BANK_SIZE     ( BANK_SIZE ),
+          .INPUT_ECC     ( 0         ),
+          .OUTPUT_ECC    ( 0         )
+        ) i_ecc_bank (
+          .clk_i,
+          .rst_ni,
+          .tcdm_slave ( tcdm_slave[i] ),
+          .tcdm_gnt_o ( tcdm_gnt_o[i] )
+        );
+      end else if ( ECC == 2 ) begin
+        ecc_sram_wrap #(
+          .BANK_SIZE     ( BANK_SIZE ),
+          .INPUT_ECC     ( 0         ),
+          .OUTPUT_ECC    ( 1         )
+        ) i_ecc_bank (
+          .clk_i,
+          .rst_ni,
+          .tcdm_slave ( tcdm_slave[i] ),
+          .tcdm_gnt_o ( tcdm_gnt_o[i] )
+        );
+      end
 
-        assign bank_wdata[39] = tcdm_slave[i].be == 4'b1111 ? 1'b1 : 1'b0;
-
-      end else begin // ECC_assign
-
-        assign bank_req            =  tcdm_slave[i].req;
-        assign bank_we             = ~tcdm_slave[i].wen;
-        assign bank_add            =  tcdm_slave[i].add[$clog2(BANK_SIZE)-1:0];
-        assign bank_wdata          =  tcdm_slave[i].wdata;
-        assign bank_be             =  tcdm_slave[i].be;
-
-        assign tcdm_slave[i].rdata =  bank_rdata;
-      end // ECC_assign
-
-      tc_sram #(
-        .NumWords  ( BANK_SIZE  ), // Number of Words in data array
-        .DataWidth ( DATA_WIDTH ), // Data signal width
-        .ByteWidth ( 8          ), // Width of a data byte
-        .NumPorts  ( 1          ), // Number of read and write ports
-        .Latency   ( 1          )  // Latency when the read data is available
-      ) i_bank (
-        .clk_i   ( clk_i      ),    // Clock
-        .rst_ni  ( rst_ni     ),    // Asynchronous reset active low
-
-        .req_i   ( bank_req   ),    // request
-        .we_i    ( bank_we    ),    // write enable
-        .addr_i  ( bank_add   ),    // request address
-        .wdata_i ( bank_wdata ),    // write data
-        .be_i    ( bank_be    ),    // write byte enable
-
-        .rdata_o ( bank_rdata )     // read data
-      );
+      
 `else // !`ifndef PULP_EMU_FPGA
 /////////////////////////////////////////////////////////////////////////////////////////
 

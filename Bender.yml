@@ -49,6 +49,7 @@ sources:
   - rtl/cluster_interconnect_wrap.sv
   - rtl/cluster_timer_wrap.sv
   - rtl/dmac_wrap.sv
+  - rtl/ecc_sram_wrap.sv
   - rtl/hwpe_subsystem.sv
   - rtl/instr_width_converter.sv
   - rtl/per2axi_wrap.sv

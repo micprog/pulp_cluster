@@ -311,11 +311,17 @@ module core_region
         .MHPMCounterNum   ( 29                ),
         .MHPMCounterWidth ( 40                ),
         .RV32E            ( CORE_TYPE_CL == 2 ),
-        .RV32M            ( CORE_TYPE_CL == 1 ? ibex_pkg::RV32MFast : ibex_pkg::RV32MNone ),
+        .RV32M            ( CORE_TYPE_CL == 1 ? ibex_pkg::RV32MSingleCycle : ibex_pkg::RV32MNone ),
         .RV32B            ( ibex_pkg::RV32BNone ),
+`ifdef TARGET_SYNTHESIS
+        .RegFile          ( ibex_pkg::RegFileLatch ),
+`elsif TARGET_FPGA
+        .RegFile          ( ibex_pkg::RegFileFPGA ),
+`else
         .RegFile          ( ibex_pkg::RegFileFF ),
-        .BranchTargetALU  ( 1'b0              ),
-        .WritebackStage   ( 1'b0              ),
+`endif
+        .BranchTargetALU  ( 1'b1              ),
+        .WritebackStage   ( 1'b1              ),
         .ICache           ( 1'b0              ),
         .ICacheECC        ( 1'b0              ),
         .BranchPredictor  ( 1'b0              ),

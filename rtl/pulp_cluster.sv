@@ -280,47 +280,47 @@ module pulp_cluster
   //********************************************************
    
     
-  logic [NB_CORES-1:0]                fetch_enable_reg_int;
-  logic [NB_CORES-1:0]                fetch_en_int;
-  logic                               s_rst_n;
-  logic                               s_init_n;
-  logic [NB_CORES-1:0][31:0]          boot_addr;
-  logic [NB_CORES-1:0]                dbg_core_halt;
-  logic [NB_CORES-1:0]                dbg_core_resume;
-  logic [NB_CORES-1:0]                dbg_core_halted;
-  logic [NB_CORES-1:0]                s_dbg_irq;
-  logic                               s_hwpe_sel;
-  logic                               s_hwpe_en;
+  logic [NB_CORES-1:0]                        fetch_enable_reg_int;
+  logic [NB_CORES-1:0]                        fetch_en_int;
+  logic                                       s_rst_n;
+  logic                                       s_init_n;
+  logic [NB_CORES-1:0][31:0]                  boot_addr;
+  logic [NB_CORES-1:0]                        dbg_core_halt;
+  logic [NB_CORES-1:0]                        dbg_core_resume;
+  logic [NB_CORES-1:0]                        dbg_core_halted;
+  logic [NB_CORES-1:0]                        s_dbg_irq;
+  logic                                       s_hwpe_sel;
+  logic                                       s_hwpe_en;
 
-  logic                     s_cluster_periphs_busy;
-  logic                     s_axi2mem_busy;
-  logic                     s_per2axi_busy;
-  logic                     s_axi2per_busy;
-  logic                     s_dmac_busy;
-  logic                     s_cluster_cg_en;
-  logic [NB_CORES-1:0]      s_dma_event;
-  logic [NB_CORES-1:0]      s_dma_irq;
-  logic [NB_CORES-1:0][3:0] s_hwpe_remap_evt;
-  logic [NB_CORES-1:0][1:0] s_hwpe_evt;
-  logic                     s_hwpe_busy;
+  logic                                       s_cluster_periphs_busy;
+  logic                                       s_axi2mem_busy;
+  logic                                       s_per2axi_busy;
+  logic                                       s_axi2per_busy;
+  logic                                       s_dmac_busy;
+  logic                                       s_cluster_cg_en;
+  logic [NB_CORES-1:0]                        s_dma_event;
+  logic [NB_CORES-1:0]                        s_dma_irq;
+  logic [NB_CORES-1:0][3:0]                   s_hwpe_remap_evt;
+  logic [NB_CORES-1:0][1:0]                   s_hwpe_evt;
+  logic                                       s_hwpe_busy;
 
-  logic [NB_CORES-1:0]               clk_core_en;
-  logic                              clk_cluster;
+  logic [NB_CORES-1:0]                        clk_core_en;
+  logic                                       clk_cluster;
 
   // CLK reset, and other control signals
 
-  logic                              s_cluster_int_busy;
-  logic                              s_fregfile_disable;
+  logic                                       s_cluster_int_busy;
+  logic                                       s_fregfile_disable;
 
-  logic [NB_CORES-1:0]               core_busy;
+  logic [NB_CORES-1:0]                        core_busy;
 
-  logic                              s_incoming_req;
-  logic                              s_isolate_cluster;
-  logic                              s_events_async;
+  logic                                       s_incoming_req;
+  logic                                       s_isolate_cluster;
+  logic                                       s_events_async;
 
-  logic                              s_events_valid;
-  logic                              s_events_ready;
-  logic [EVNT_WIDTH-1:0]             s_events_data;
+  logic                                       s_events_valid;
+  logic                                       s_events_ready;
+  logic [EVNT_WIDTH-1:0]                      s_events_data;
 
   // Signals Between CORE_ISLAND and INSTRUCTION CACHES
   logic [NB_CORES-1:0]                        instr_req;
@@ -332,17 +332,17 @@ module pulp_cluster
   logic [1:0]                                 s_TCDM_arb_policy;
   logic                                       tcdm_sleep;
 
-  logic               s_dma_pe_event;
-  logic               s_dma_pe_irq;
-  logic               s_pf_event;
+  logic                                       s_dma_pe_event;
+  logic                                       s_dma_pe_irq;
+  logic                                       s_pf_event;
   
-  logic[NB_CORES-1:0][4:0] irq_id;
-  logic[NB_CORES-1:0][4:0] irq_ack_id;
-  logic[NB_CORES-1:0]      irq_req;
-  logic[NB_CORES-1:0]      irq_ack;
+  logic[NB_CORES-1:0][4:0]                    irq_id;
+  logic[NB_CORES-1:0][4:0]                    irq_ack_id;
+  logic[NB_CORES-1:0]                         irq_req;
+  logic[NB_CORES-1:0]                         irq_ack;
   
 
-  logic [NB_CORES-1:0]                s_core_dbg_irq;
+  logic [NB_CORES-1:0]                        s_core_dbg_irq;
 
   
   logic [NB_L1_CUTS-1:0][RW_MARGIN_WIDTH-1:0] s_rw_margin_L1;
@@ -422,22 +422,22 @@ module pulp_cluster
    //----------------------------------------------------------------------//
    // Interfaces between ICache - L0 - Icache_Interco and Icache_ctrl_unit //
    //                                                                      //
-  `ifdef PRIVATE_ICACHE
+`ifdef PRIVATE_ICACHE
       SP_ICACHE_CTRL_UNIT_BUS      IC_ctrl_unit_bus_main[NB_CACHE_BANKS]();
       PRI_ICACHE_CTRL_UNIT_BUS     IC_ctrl_unit_bus_pri[NB_CORES]();
       logic                        s_special_core_icache_cfg;
       logic[NB_CORES-1:0]          s_enable_l1_l15_prefetch;
 
-  `else
-      `ifdef SP_ICACHE
-             SP_ICACHE_CTRL_UNIT_BUS  IC_ctrl_unit_bus[NB_CACHE_BANKS]();
-             L0_CTRL_UNIT_BUS         L0_ctrl_unit_bus[NB_CORES]();
-      `else
-          `ifdef MP_ICACHE
-               MP_PF_ICACHE_CTRL_UNIT_BUS  IC_ctrl_unit_bus();
-          `endif
-      `endif
+`else
+ `ifdef SP_ICACHE
+      SP_ICACHE_CTRL_UNIT_BUS  IC_ctrl_unit_bus[NB_CACHE_BANKS]();
+      L0_CTRL_UNIT_BUS         L0_ctrl_unit_bus[NB_CORES]();
+ `else
+  `ifdef MP_ICACHE
+      MP_PF_ICACHE_CTRL_UNIT_BUS  IC_ctrl_unit_bus();
   `endif
+ `endif
+`endif
    //----------------------------------------------------------------------//
    
   // log interconnect -> TCDM memory banks (SRAM)

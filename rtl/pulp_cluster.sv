@@ -364,19 +364,75 @@ module pulp_cluster
   /* logarithmic and peripheral interconnect interfaces */
   // ext -> log interconnect 
   XBAR_TCDM_BUS s_ext_xbar_bus[NB_DMAS-1:0]();
+  XBAR_TCDM_BUS #(
+    .DATA_WIDTH (39),
+    .BE_WIDTH   (4)
+  ) s_ext_xbar_bus_ecc[NB_DMAS-1:0]();
+  if (ECC == 3) begin
+    for (genvar i = 0; i < NB_DMAS; i++) begin
+      TCDM_XBAR_bus_ecc_enc ext_xbar_enc (
+        .bus_in     ( s_ext_xbar_bus[i]     ),
+        .bus_out    ( s_ext_xbar_bus_ecc[i] ),
+        .syndrome_o (),
+        .err_o      ()
+      );
+    end
+  end
 
   // periph interconnect -> slave peripherals
-  XBAR_PERIPH_BUS s_xbar_speriph_bus[NB_SPERIPHS-1:0]();
+  XBAR_PERIPH_BUS s_xbar_speriph_bus[NB_SPERIPHS-1:0]();  
+  XBAR_PERIPH_BUS #(
+    .DATA_WIDTH (39),
+    .BE_WIDTH   (4)
+  ) s_xbar_speriph_bus_ecc[NB_SPERIPHS-1:0]();
+  if (ECC == 3) begin
+    for (genvar i = 0; i < NB_SPERIPHS; i++) begin
+      PE_XBAR_bus_ecc_dec xbar_speriph_dec (
+        .bus_in     ( s_xbar_speriph_bus_ecc[i] ),
+        .bus_out    ( s_xbar_speriph_bus[i]     ),
+        .syndrome_o (),
+        .err_o      () 
+      );
+    end
+  end
 
   // periph interconnect -> HWPE subsystem
   XBAR_PERIPH_BUS s_hwpe_cfg_bus();
 
   // DMA -> log interconnect
   XBAR_TCDM_BUS s_dma_xbar_bus[NB_DMAS-1:0]();
-  XBAR_TCDM_BUS    s_dma_plugin_xbar_bus[NB_DMAS-1:0]();
+  XBAR_TCDM_BUS #(
+    .DATA_WIDTH (39),
+    .BE_WIDTH   (4)
+  ) s_dma_xbar_bus_ecc[NB_DMAS-1:0]();
+  if (ECC == 3) begin
+    for (genvar i = 0; i < NB_DMAS; i++) begin
+      TCDM_XBAR_bus_ecc_enc dma_xbar_enc (
+        .bus_in     ( s_dma_xbar_bus[i]     ),
+        .bus_out    ( s_dma_xbar_bus_ecc[i] ),
+        .syndrome_o (),
+        .err_o      ()
+      );
+    end
+  end
+  // XBAR_TCDM_BUS    s_dma_plugin_xbar_bus[NB_DMAS-1:0]();
 
   // ext -> xbar periphs FIXME
   XBAR_TCDM_BUS s_mperiph_xbar_bus[NB_MPERIPHS-1:0]();
+  XBAR_TCDM_BUS #(
+    .DATA_WIDTH (39),
+    .BE_WIDTH   (4)
+  ) s_mperiph_xbar_bus_ecc[NB_MPERIPHS-1:0]();
+  if (ECC == 3) begin
+    for (genvar i = 0; i < NB_MPERIPHS; i++) begin
+      TCDM_XBAR_bus_ecc_enc mperiph_xbar_enc (
+        .bus_in     ( s_mperiph_xbar_bus[i]     ),
+        .bus_out    ( s_mperiph_xbar_bus_ecc[i] ),
+        .syndrome_o (),
+        .err_o      ()
+      );
+    end
+  end
 
   // periph demux
   XBAR_TCDM_BUS s_mperiph_bus();
@@ -384,10 +440,38 @@ module pulp_cluster
   
   // cores & accelerators -> log interconnect
   XBAR_TCDM_BUS s_core_xbar_bus[NB_CORES+NB_HWPE_PORTS-1:0]();
-  
+  XBAR_TCDM_BUS #(
+    .DATA_WIDTH (39),
+    .BE_WIDTH   (4)
+  ) s_core_xbar_bus_ecc[NB_CORES+NB_HWPE_PORTS-1:0]();
+  if (ECC == 3) begin
+    for (genvar i = 0; i < NB_CORES+NB_HWPE_PORTS; i++) begin
+      TCDM_XBAR_bus_ecc_enc core_xbar_enc (
+        .bus_in     ( s_core_xbar_bus[i]     ),
+        .bus_out    ( s_core_xbar_bus_ecc[i] ),
+        .syndrome_o (),
+        .err_o      ()
+      );
+    end
+  end
+
   // cores -> periph interconnect
   XBAR_PERIPH_BUS s_core_periph_bus[NB_CORES-1:0]();
-  
+  XBAR_PERIPH_BUS #(
+    .DATA_WIDTH (39),
+    .BE_WIDTH   (4)
+  ) s_core_periph_bus_ecc[NB_CORES-1:0]();
+  if (ECC == 3) begin
+    for (genvar i = 0; i < NB_CORES; i++) begin
+      PE_XBAR_bus_ecc_enc core_periph_enc (
+        .bus_in     ( s_core_periph_bus[i] ),
+        .bus_out    ( s_core_periph_bus_ecc[i]     ),
+        .syndrome_o (),
+        .err_o      () 
+      );
+    end
+  end
+
   // periph interconnect -> DMA
   XBAR_PERIPH_BUS s_periph_dma_bus[1:0]();
   
@@ -441,8 +525,11 @@ module pulp_cluster
    //----------------------------------------------------------------------//
    
   // log interconnect -> TCDM memory banks (SRAM)
-  TCDM_BANK_MEM_BUS         s_tcdm_bus_sram[NB_TCDM_BANKS-1:0]();
-  logic [NB_TCDM_BANKS-1:0] s_tcdm_bus_gnt;
+  TCDM_BANK_MEM_BUS #(
+    .DATA_WIDTH ( ECC > 2 ? 39 : 32),
+    .BE_WIDTH   ( 4 )
+  ) s_tcdm_bus_sram[NB_TCDM_BANKS-1:0]();
+  logic [NB_TCDM_BANKS-1:0] s_tcdm_bus_sram_gnt;
 
   //***************************************************
   /* asynchronous AXI interfaces at CLUSTER/SOC interface */
@@ -663,43 +750,83 @@ module pulp_cluster
   /* cluster (log + periph) interconnect and attached peripherals */
   //*************************************************** 
   
-  cluster_interconnect_wrap #(
-    .NB_CORES           ( NB_CORES           ),
-    .NB_HWPE_PORTS      ( NB_HWPE_PORTS      ),
-    .NB_DMAS            ( NB_DMAS            ),
-    .NB_MPERIPHS        ( NB_MPERIPHS        ),
-    .NB_TCDM_BANKS      ( NB_TCDM_BANKS      ),
-    .NB_SPERIPHS        ( NB_SPERIPHS        ),
+  if (ECC != 3) begin
+    cluster_interconnect_wrap #(
+      .NB_CORES           ( NB_CORES           ),
+      .NB_HWPE_PORTS      ( NB_HWPE_PORTS      ),
+      .NB_DMAS            ( NB_DMAS            ),
+      .NB_MPERIPHS        ( NB_MPERIPHS        ),
+      .NB_TCDM_BANKS      ( NB_TCDM_BANKS      ),
+      .NB_SPERIPHS        ( NB_SPERIPHS        ),
 
-    .DATA_WIDTH         ( DATA_WIDTH         ),
-    .ADDR_WIDTH         ( ADDR_WIDTH         ),
-    .BE_WIDTH           ( BE_WIDTH           ),
+      .DATA_WIDTH         ( DATA_WIDTH         ),
+      .ADDR_WIDTH         ( ADDR_WIDTH         ),
+      .BE_WIDTH           ( BE_WIDTH           ),
 
-    .TEST_SET_BIT       ( TEST_SET_BIT       ),
-    .ADDR_MEM_WIDTH     ( ADDR_MEM_WIDTH     ),
+      .TEST_SET_BIT       ( TEST_SET_BIT       ),
+      .ADDR_MEM_WIDTH     ( ADDR_MEM_WIDTH     ),
 
-    .LOG_CLUSTER        ( LOG_CLUSTER        ),
-    .PE_ROUTING_LSB     ( PE_ROUTING_LSB     )
+      .LOG_CLUSTER        ( LOG_CLUSTER        ),
+      .PE_ROUTING_LSB     ( PE_ROUTING_LSB     )
 
-  ) cluster_interconnect_wrap_i (
-    .clk_i              ( clk_cluster                         ),
-    .rst_ni             ( rst_ni                              ),
+    ) cluster_interconnect_wrap_i (
+      .clk_i              ( clk_cluster                         ),
+      .rst_ni             ( rst_ni                              ),
 
-    .core_tcdm_slave    ( s_core_xbar_bus                     ),
-    .core_periph_slave  ( s_core_periph_bus                   ),
+      .core_tcdm_slave    ( s_core_xbar_bus                     ),
+      .core_periph_slave  ( s_core_periph_bus                   ),
 
-    .ext_slave          ( s_ext_xbar_bus                      ),
+      .ext_slave          ( s_ext_xbar_bus                      ),
 
-    .dma_slave          ( s_dma_xbar_bus                      ),
-    .mperiph_slave      ( s_mperiph_xbar_bus[NB_MPERIPHS-1:0] ),
+      .dma_slave          ( s_dma_xbar_bus                      ),
+      .mperiph_slave      ( s_mperiph_xbar_bus[NB_MPERIPHS-1:0] ),
 
-    .tcdm_sram_master   ( s_tcdm_bus_sram                     ),
-    .tcdm_gnt_i         ( s_tcdm_bus_gnt                      ),
+      .tcdm_sram_master   ( s_tcdm_bus_sram                     ),
+      .tcdm_gnt_i         ( s_tcdm_bus_sram_gnt                 ),
 
-    .speriph_master     ( s_xbar_speriph_bus                  ),
+      .speriph_master     ( s_xbar_speriph_bus                  ),
 
-    .TCDM_arb_policy_i  ( s_TCDM_arb_policy                   )
-  );
+      .TCDM_arb_policy_i  ( s_TCDM_arb_policy                   )
+    );
+  end else begin
+    cluster_interconnect_wrap #(
+      .NB_CORES           ( NB_CORES           ),
+      .NB_HWPE_PORTS      ( NB_HWPE_PORTS      ),
+      .NB_DMAS            ( NB_DMAS            ),
+      .NB_MPERIPHS        ( NB_MPERIPHS        ),
+      .NB_TCDM_BANKS      ( NB_TCDM_BANKS      ),
+      .NB_SPERIPHS        ( NB_SPERIPHS        ),
+
+      .DATA_WIDTH         ( 39                 ),
+      .ADDR_WIDTH         ( ADDR_WIDTH         ),
+      .BE_WIDTH           ( BE_WIDTH           ),
+
+      .TEST_SET_BIT       ( TEST_SET_BIT       ),
+      .ADDR_MEM_WIDTH     ( ADDR_MEM_WIDTH     ),
+
+      .LOG_CLUSTER        ( LOG_CLUSTER        ),
+      .PE_ROUTING_LSB     ( PE_ROUTING_LSB     )
+
+    ) cluster_interconnect_wrap_i (
+      .clk_i              ( clk_cluster                             ),
+      .rst_ni             ( rst_ni                                  ),
+
+      .core_tcdm_slave    ( s_core_xbar_bus_ecc                     ),
+      .core_periph_slave  ( s_core_periph_bus_ecc                   ),
+
+      .ext_slave          ( s_ext_xbar_bus_ecc                      ),
+
+      .dma_slave          ( s_dma_xbar_bus_ecc                      ),
+      .mperiph_slave      ( s_mperiph_xbar_bus_ecc[NB_MPERIPHS-1:0] ),
+
+      .tcdm_sram_master   ( s_tcdm_bus_sram                         ),
+      .tcdm_gnt_i         ( s_tcdm_bus_sram_gnt                     ),
+
+      .speriph_master     ( s_xbar_speriph_bus_ecc                  ),
+
+      .TCDM_arb_policy_i  ( s_TCDM_arb_policy                       )
+    );
+  end
 
   //***************************************************
   //*********************DMAC WRAP*********************
@@ -1385,7 +1512,7 @@ module pulp_cluster
     .test_mode_i ( test_mode_i     ),
     .pwdn_i      ( 1'b0            ),
     .tcdm_slave  ( s_tcdm_bus_sram ),   //PMU ??
-    .tcdm_gnt_o  ( s_tcdm_bus_gnt )
+    .tcdm_gnt_o  ( s_tcdm_bus_sram_gnt )
   );
   
   /* AXI interconnect infrastructure (slices, size conversion) */ 

@@ -98,6 +98,17 @@ module tcdm_banks_wrap
           .tcdm_slave ( tcdm_slave[i] ),
           .tcdm_gnt_o ( tcdm_gnt_o[i] )
         );
+      end else if ( ECC >= 3 ) begin
+        ecc_sram_wrap #(
+          .BANK_SIZE     ( BANK_SIZE ),
+          .INPUT_ECC     ( 1         ),
+          .OUTPUT_ECC    ( 1         )
+        ) i_ecc_bank (
+          .clk_i,
+          .rst_ni,
+          .tcdm_slave ( tcdm_slave[i] ),
+          .tcdm_gnt_o ( tcdm_gnt_o[i] )
+        );
       end
 
       

@@ -56,8 +56,7 @@ module core_region
 
   parameter L2_SLM_FILE         = "./slm_files/l2_stim.slm",
   parameter ROM_SLM_FILE        = "../sw/apps/boot/slm_files/l2_stim.slm"
-)
-(
+) (
   input  logic                           clk_i,
   input  logic                           rst_ni,
   input  logic                           init_ni,

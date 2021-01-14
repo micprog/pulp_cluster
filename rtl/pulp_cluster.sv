@@ -1504,7 +1504,8 @@ module pulp_cluster
   tcdm_banks_wrap #(
     .BANK_SIZE ( TCDM_NUM_ROWS ),
     .NB_BANKS  ( NB_TCDM_BANKS ),
-    .ECC       ( ECC           )
+    .SRAM_ECC  ( ECC>1         ),
+    .INTC_ECC  ( ECC>2         )
   ) tcdm_banks_i (
     .clk_i       ( clk_cluster     ),
     .rst_ni      ( s_rst_n         ),

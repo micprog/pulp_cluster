@@ -37,7 +37,9 @@ module tcdm_banks_wrap
   parameter NB_BANKS  = 1,     // --> OVERRIDE
   parameter RM_SIZE   = 1,     // only for SRAM
   parameter WM_SIZE   = 1,     // only for SRAM
-  parameter ECC       = 0      // Experimental ECC feature - in development
+  
+  parameter SRAM_ECC  = 0,     // Protect data in SRAM with ECC
+  parameter INTC_ECC  = 0      // Input data is ECC protected (requires SRAM_ECC)
 )
 (
   input  logic                clk_i,
@@ -55,7 +57,7 @@ module tcdm_banks_wrap
 
 `ifndef PULP_FPGA_EMUL
 
-      if ( ECC == 0 ) begin
+      if ( SRAM_ECC == 0 ) begin
         assign tcdm_gnt_o[i] = 1'b1;
         
         tc_sram #(
@@ -76,33 +78,10 @@ module tcdm_banks_wrap
 
           .rdata_o (  tcdm_slave[i].rdata                      )  // read data
         );
-      end else if ( ECC == 1 ) begin
+      end else begin
         ecc_sram_wrap #(
           .BANK_SIZE     ( BANK_SIZE ),
-          .INPUT_ECC     ( 0         ),
-          .OUTPUT_ECC    ( 0         )
-        ) i_ecc_bank (
-          .clk_i,
-          .rst_ni,
-          .tcdm_slave ( tcdm_slave[i] ),
-          .tcdm_gnt_o ( tcdm_gnt_o[i] )
-        );
-      end else if ( ECC == 2 ) begin
-        ecc_sram_wrap #(
-          .BANK_SIZE     ( BANK_SIZE ),
-          .INPUT_ECC     ( 0         ),
-          .OUTPUT_ECC    ( 1         )
-        ) i_ecc_bank (
-          .clk_i,
-          .rst_ni,
-          .tcdm_slave ( tcdm_slave[i] ),
-          .tcdm_gnt_o ( tcdm_gnt_o[i] )
-        );
-      end else if ( ECC >= 3 ) begin
-        ecc_sram_wrap #(
-          .BANK_SIZE     ( BANK_SIZE ),
-          .INPUT_ECC     ( 1         ),
-          .OUTPUT_ECC    ( 1         )
+          .INPUT_ECC     ( INTC_ECC  )
         ) i_ecc_bank (
           .clk_i,
           .rst_ni,

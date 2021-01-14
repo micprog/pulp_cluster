@@ -11,7 +11,7 @@ dependencies:
   axi2mem:              { git: "git@github.com:pulp-platform/axi2mem.git", rev: "6973e0434d26ba578cdb4aa69c26c1facd1a3f15" } # deprecated, replace with axi_to_mem in axi repo
   axi2per:              { git: "git@github.com:pulp-platform/axi2per.git", version: 1.0.1 }
   per2axi:              { git: "git@github.com:pulp-platform/per2axi.git", version: 1.0.4 }
-  cluster_interconnect: { git: "git@github.com:pulp-platform/cluster_interconnect.git", version: 1.1.0 }
+  cluster_interconnect: { git: "git@github.com:pulp-platform/cluster_interconnect.git", version: 1.1.1 }
   event_unit_flex:      { git: "git@github.com:pulp-platform/event_unit_flex.git", rev: "1.4.1" }
   mchan:                { git: "git@github.com:pulp-platform/mchan.git", version: 1.2.2 }
   hier-icache:          { git: "git@github.com:pulp-platform/hier-icache.git", version: 1.2.0 }

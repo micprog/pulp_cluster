@@ -3,6 +3,10 @@
 # Uses the YAML syntax.
 #
 
+axi/axi:
+  commit: v0.24.1
+  domain: [soc, cluster]
+  group: pulp-platform
 axi/axi2mem:
   commit: 6973e0434d26ba578cdb4aa69c26c1facd1a3f15
   domain: [soc, cluster]

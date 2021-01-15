@@ -15,6 +15,10 @@ axi/per2axi:
   commit: v1.0.4
   domain: [soc, cluster]
   group:  pulp-platform
+axi/axi_size_conv:
+  commit: 5239f87fe772111ec368fb08dbb971516edce097
+  domain: [cluster]
+  group:  pulp-platform
 cluster_interconnect:
   commit: tags/v1.1.0
   domain: [cluster]

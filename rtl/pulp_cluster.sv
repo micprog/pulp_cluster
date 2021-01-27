@@ -471,6 +471,7 @@ module pulp_cluster
 
   // log interconnect -> TCDM memory banks (SRAM)
   hci_mem_intf #(
+    .AW ( ADDR_MEM_WIDTH + 2 ),
     .IW ( TCDM_ID_WIDTH )
   ) s_tcdm_bus_sram[NB_TCDM_BANKS-1:0](
     .clk ( clk_cluster )

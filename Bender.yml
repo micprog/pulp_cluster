@@ -65,6 +65,9 @@ sources:
       TRACE_EXECUTION: ~
     files:
       - rtl/core_region.sv
+      - rtl/cluster_core_wrap.sv
+      - rtl/cluster_core_assist.sv
+      - rtl/core_region_new.sv
   - target: not(rtl)
     files:
       - rtl/core_region.sv

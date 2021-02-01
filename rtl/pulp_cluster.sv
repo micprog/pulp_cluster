@@ -978,7 +978,7 @@ module pulp_cluster
       );
 
 
-      core_region #(
+      core_region_new #(
         .CORE_TYPE_CL        ( CORE_TYPE_CL            ),
         .CORE_ID             ( i                       ),
         .ADDR_WIDTH          ( 32                      ),

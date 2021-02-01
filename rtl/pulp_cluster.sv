@@ -847,19 +847,19 @@ module pulp_cluster
     .ADDR_WIDTH         ( ADDR_WIDTH         ),
     .BE_WIDTH           ( BE_WIDTH           )
   ) dmac_wrap_i (
-    .clk_i          ( clk_cluster        ),
-    .rst_ni         ( rst_ni             ),
-    .test_mode_i    ( test_mode_i        ),
-    //.ctrl_slave     ( s_core_dmactrl_bus ), // eliminate
-    .cl_ctrl_slave  ( s_periph_dma_bus[0]),
-    .fc_ctrl_slave  ( s_periph_dma_bus[1]),
-    .tcdm_master    ( s_dma_xbar_bus     ),
-    .ext_master     ( s_dma_ext_bus      ),
-    .term_event_cl_o( s_dma_cl_event     ),
-    .term_irq_cl_o  ( s_dma_cl_irq       ),
-    .term_event_pe_o( s_dma_fc_event     ),
-    .term_irq_pe_o  ( s_dma_pe_irq       ),
-    .busy_o         ( s_dmac_busy        )
+    .clk_i          ( clk_cluster         ),
+    .rst_ni         ( rst_ni              ),
+    .test_mode_i    ( test_mode_i         ),
+    //.ctrl_slave     ( s_core_dmactrl_bus  ), // eliminate
+    .cl_ctrl_slave  ( s_periph_dma_bus[0] ),
+    .fc_ctrl_slave  ( s_periph_dma_bus[1] ),
+    .tcdm_master    ( s_dma_xbar_bus      ),
+    .ext_master     ( s_dma_ext_bus       ),
+    .term_event_cl_o( s_dma_cl_event      ),
+    .term_irq_cl_o  ( s_dma_cl_irq        ),
+    .term_event_pe_o( s_dma_fc_event      ),
+    .term_irq_pe_o  ( s_dma_pe_irq        ),
+    .busy_o         ( s_dmac_busy         )
   );
 
   //***************************************************
@@ -867,20 +867,18 @@ module pulp_cluster
   //*************************************************** 
 
   cluster_peripherals #(
-    .NB_CORES       ( NB_CORES       ),
-    .NB_MPERIPHS    ( NB_MPERIPHS    ),
-    .NB_CACHE_BANKS ( NB_CACHE_BANKS ),
-    .NB_SPERIPHS    ( NB_SPERIPHS    ),
-    .NB_TCDM_BANKS  ( NB_TCDM_BANKS  ),
-    .ROM_BOOT_ADDR  ( ROM_BOOT_ADDR  ),
-    .BOOT_ADDR      ( BOOT_ADDR      ),
-    .EVNT_WIDTH     ( EVNT_WIDTH     ),
+    .NB_CORES       ( NB_CORES         ),
+    .NB_MPERIPHS    ( NB_MPERIPHS      ),
+    .NB_CACHE_BANKS ( NB_CACHE_BANKS   ),
+    .NB_SPERIPHS    ( NB_SPERIPHS      ),
+    .NB_TCDM_BANKS  ( NB_TCDM_BANKS    ),
+    .ROM_BOOT_ADDR  ( ROM_BOOT_ADDR    ),
+    .BOOT_ADDR      ( BOOT_ADDR        ),
+    .EVNT_WIDTH     ( EVNT_WIDTH       ),
 
-    .NB_L1_CUTS      ( NB_L1_CUTS       ),
-    .RW_MARGIN_WIDTH ( RW_MARGIN_WIDTH  )
-  
+    .NB_L1_CUTS      ( NB_L1_CUTS      ),
+    .RW_MARGIN_WIDTH ( RW_MARGIN_WIDTH )
   ) cluster_peripherals_i (
-
     .clk_i                  ( clk_cluster                        ),
     .rst_ni                 ( rst_ni                             ),
     .ref_clk_i              ( ref_clk_i                          ),
@@ -927,9 +925,9 @@ module pulp_cluster
     .dbg_req_o              ( s_core_dbg_irq                     ),
 
     .fregfile_disable_o     ( s_fregfile_disable                 ),   
-    
+
     .TCDM_arb_policy_o      ( s_TCDM_arb_policy                  ),
-    
+
     .hwpe_cfg_master        ( s_hwpe_cfg_bus                     ),
     .hwpe_events_i          ( s_hwpe_remap_evt                   ),
     .hwpe_sel_o             ( s_hwpe_sel                         ),
@@ -967,77 +965,77 @@ module pulp_cluster
   //         ╚██████╗╚██████╔╝██║  ██║███████╗            //
   //          ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝            //
   //------------------------------------------------------//
-  
+
   /* cluster cores + core-coupled accelerators / shared execution units */
   generate
     for (genvar i=0; i<NB_CORES; i++) begin : CORE
 
       pulp_sync dbg_irq_sync (
-        .clk_i(clk_cluster),
-        .rstn_i(s_rst_n),
-        .serial_i(dbg_irq_valid_i[i]),
-        .serial_o(s_dbg_irq[i])
+        .clk_i    ( clk_cluster        ),
+        .rstn_i   ( s_rst_n            ),
+        .serial_i ( dbg_irq_valid_i[i] ),
+        .serial_o ( s_dbg_irq[i]       )
       );
 
 
       core_region #(
-        .CORE_TYPE_CL        ( CORE_TYPE_CL       ),
-        .CORE_ID             ( i                  ),
-        .ADDR_WIDTH          ( 32                 ),
-        .DATA_WIDTH          ( 32                 ),
-        .INSTR_RDATA_WIDTH   ( INSTR_RDATA_WIDTH  ),
-        .CLUSTER_ALIAS_BASE  ( CLUSTER_ALIAS_BASE ),
-        .REMAP_ADDRESS       ( REMAP_ADDRESS      ),
-        .APU_NARGS_CPU       ( APU_NARGS_CPU      ), //= 2,
-        .APU_WOP_CPU         ( APU_WOP_CPU        ), //= 1,
-        .WAPUTYPE            ( WAPUTYPE           ), //= 3,
-        .APU_NDSFLAGS_CPU    ( APU_NDSFLAGS_CPU   ), //= 3,
-        .APU_NUSFLAGS_CPU    ( APU_NUSFLAGS_CPU   ), //= 5,
+        .CORE_TYPE_CL        ( CORE_TYPE_CL            ),
+        .CORE_ID             ( i                       ),
+        .ADDR_WIDTH          ( 32                      ),
+        .DATA_WIDTH          ( 32                      ),
+        .INSTR_RDATA_WIDTH   ( INSTR_RDATA_WIDTH       ),
+        .CLUSTER_ALIAS_BASE  ( CLUSTER_ALIAS_BASE      ),
+        .REMAP_ADDRESS       ( REMAP_ADDRESS           ),
+        .APU_NARGS_CPU       ( APU_NARGS_CPU           ), //= 2,
+        .APU_WOP_CPU         ( APU_WOP_CPU             ), //= 1,
+        .WAPUTYPE            ( WAPUTYPE                ), //= 3,
+        .APU_NDSFLAGS_CPU    ( APU_NDSFLAGS_CPU        ), //= 3,
+        .APU_NUSFLAGS_CPU    ( APU_NUSFLAGS_CPU        ), //= 5,
 
         .FPU                 ( CLUST_FPU               ),
         .FP_DIVSQRT          ( CLUST_FP_DIVSQRT        ),
         .SHARED_FP           ( CLUST_SHARED_FP         ),
         .SHARED_FP_DIVSQRT   ( CLUST_SHARED_FP_DIVSQRT )
       ) core_region_i (
-        .clk_i               ( clk_cluster           ),
-        .rst_ni              ( s_rst_n               ),
-        .base_addr_i         ( base_addr_i           ),
+        .clk_i                 ( clk_cluster              ),
+        .rst_ni                ( s_rst_n                  ),
+        .base_addr_i           ( base_addr_i              ),
 
-        .init_ni             ( s_init_n              ),
-        .cluster_id_i        ( cluster_id_i          ),
-        .clock_en_i          ( clk_core_en[i]        ),
-        .fetch_en_i          ( fetch_en_int[i]       ),
-       
-        .boot_addr_i         ( boot_addr[i]          ),
-        .irq_id_i            ( irq_id[i]             ),
-        .irq_ack_id_o        ( irq_ack_id[i]         ),
-        .irq_req_i           ( irq_req[i]            ),
-        .irq_ack_o           ( irq_ack[i]            ),
+        .init_ni               ( s_init_n                 ),
+        .cluster_id_i          ( cluster_id_i             ),
+        .clock_en_i            ( clk_core_en[i]           ),
+        .fetch_en_i            ( fetch_en_int[i]          ),
+
+        .boot_addr_i           ( boot_addr[i]             ),
+        .irq_id_i              ( irq_id[i]                ),
+        .irq_ack_id_o          ( irq_ack_id[i]            ),
+        .irq_req_i             ( irq_req[i]               ),
+        .irq_ack_o             ( irq_ack[i]               ),
   
-        .test_mode_i         ( test_mode_i           ),
-        .core_busy_o         ( core_busy[i]          ),
+        .test_mode_i           ( test_mode_i              ),
+        .core_busy_o           ( core_busy[i]             ),
 
         //instruction cache bind 
-        .instr_req_o         ( instr_req[i]          ),
-        .instr_gnt_i         ( instr_gnt[i]          ),
-        .instr_addr_o        ( instr_addr[i]         ),
-        .instr_r_rdata_i     ( instr_r_rdata[i]      ),
-        .instr_r_valid_i     ( instr_r_valid[i]      ),
+        .instr_req_o           ( instr_req[i]             ),
+        .instr_gnt_i           ( instr_gnt[i]             ),
+        .instr_addr_o          ( instr_addr[i]            ),
+        .instr_r_rdata_i       ( instr_r_rdata[i]         ),
+        .instr_r_valid_i       ( instr_r_valid[i]         ),
 
         //debug unit bind
-        .debug_req_i         ( s_core_dbg_irq[i]     ),
-        //.debug_bus           ( s_debug_bus[i]        ),
-        //.debug_core_halted_o ( dbg_core_halted[i]    ),
-        //.debug_core_halt_i   ( dbg_core_halt[i]      ),
-        //.debug_core_resume_i ( dbg_core_resume[i]    ),
-        .tcdm_data_master    ( s_core_xbar_bus[i]    ),
+        .debug_req_i           ( s_core_dbg_irq[i]        ),
+        // .debug_bus             ( s_debug_bus[i]          ),
+        // .debug_core_halted_o   ( dbg_core_halted[i]      ),
+        // .debug_core_halt_i     ( dbg_core_halt[i]        ),
+        // .debug_core_resume_i   ( dbg_core_resume[i]      ),
+        .tcdm_data_master      ( s_core_xbar_bus[i]       ),
 
         //tcdm, dma ctrl unit, periph interco interfaces
-        //.dma_ctrl_master     ( s_core_dmactrl_bus[i] ),
-        .eu_ctrl_master      ( s_core_euctrl_bus[i]  ),
-        .periph_data_master  ( s_core_periph_bus[i]  ),
+        //.dma_ctrl_master       ( s_core_dmactrl_bus[i] ),
+        .eu_ctrl_master        ( s_core_euctrl_bus[i]     ),
+        .periph_data_master    ( s_core_periph_bus[i]     ),
       
-        .fregfile_disable_i  (  s_fregfile_disable     )
+        .fregfile_disable_i    (  s_fregfile_disable      )
 `ifdef SHARED_FPU_CLUSTER
         ,        
         .apu_master_req_o      ( s_apu_master_req     [i] ),
@@ -1090,16 +1088,15 @@ module pulp_cluster
 `ifdef SHARED_FPU_CLUSTER
 
   // request channel
-  logic [NB_CORES-1:0][2:0][31:0]                s_apu__operands;
-  logic [NB_CORES-1:0][5:0]                      s_apu__op;
-  logic [NB_CORES-1:0][2:0]                      s_apu__type;
-  logic [NB_CORES-1:0][14:0]                     s_apu__flags;
+  logic [NB_CORES-1:0][2:0][31:0] s_apu__operands;
+  logic [NB_CORES-1:0][5:0]       s_apu__op;
+  logic [NB_CORES-1:0][2:0]       s_apu__type;
+  logic [NB_CORES-1:0][14:0]      s_apu__flags;
   // response channel
-  logic [NB_CORES-1:0][4:0]                      s_apu__rflags;
+  logic [NB_CORES-1:0][4:0]       s_apu__rflags;
 
   genvar k;
-  for(k=0;k<NB_CORES;k++)
-  begin
+  for(k=0;k<NB_CORES;k++) begin
     assign s_apu__operands[k][2:0] = s_apu_master_operands[k][2:0];
     assign s_apu__op[k][5:0]       = s_apu_master_op[k][5:0];
     assign s_apu__type[k][2:0]     = s_apu_master_type[k][2:0];
@@ -1108,51 +1105,51 @@ module pulp_cluster
   end
 
   shared_fpu_cluster #(
-    .NB_CORES         ( NB_CORES          ),
-    .NB_APUS          ( 1                 ),
-    .NB_FPNEW         ( 4                 ),
-    .FP_TYPE_WIDTH    ( 3                 ),
+    .NB_CORES            ( NB_CORES                   ),
+    .NB_APUS             ( 1                          ),
+    .NB_FPNEW            ( 4                          ),
+    .FP_TYPE_WIDTH       ( 3                          ),
 
-    .NB_CORE_ARGS      ( 3                ),
-    .CORE_DATA_WIDTH   ( 32               ),
-    .CORE_OPCODE_WIDTH ( 6                ),
-    .CORE_DSFLAGS_CPU  ( 15               ),
-    .CORE_USFLAGS_CPU  ( 5                ),
+    .NB_CORE_ARGS        ( 3                          ),
+    .CORE_DATA_WIDTH     ( 32                         ),
+    .CORE_OPCODE_WIDTH   ( 6                          ),
+    .CORE_DSFLAGS_CPU    ( 15                         ),
+    .CORE_USFLAGS_CPU    ( 5                          ),
 
-    .NB_APU_ARGS      ( 2                 ),
-    .APU_OPCODE_WIDTH ( 6                 ),
-    .APU_DSFLAGS_CPU  ( 15                ),
-    .APU_USFLAGS_CPU  ( 5                 ),
+    .NB_APU_ARGS         ( 2                          ),
+    .APU_OPCODE_WIDTH    ( 6                          ),
+    .APU_DSFLAGS_CPU     ( 15                         ),
+    .APU_USFLAGS_CPU     ( 5                          ),
 
-    .NB_FPNEW_ARGS        ( 3             ), //= 3,
-    .FPNEW_OPCODE_WIDTH   ( 6             ), //= 6,
-    .FPNEW_DSFLAGS_CPU    ( 15            ), //= 15,
-    .FPNEW_USFLAGS_CPU    ( 5             ), //= 5,
+    .NB_FPNEW_ARGS       ( 3                          ), //= 3,
+    .FPNEW_OPCODE_WIDTH  ( 6                          ), //= 6,
+    .FPNEW_DSFLAGS_CPU   ( 15                         ), //= 15,
+    .FPNEW_USFLAGS_CPU   ( 5                          ), //= 5,
 
-    .APUTYPE_ID       ( 1                 ),
-    .FPNEWTYPE_ID     ( 0                 ),
+    .APUTYPE_ID          ( 1                          ),
+    .FPNEWTYPE_ID        ( 0                          ),
 
-    .C_FPNEW_FMTBITS     (fpnew_pkg::FP_FORMAT_BITS  ),
-    .C_FPNEW_IFMTBITS    (fpnew_pkg::INT_FORMAT_BITS ),
-    .C_ROUND_BITS        (3                          ),
-    .C_FPNEW_OPBITS      (fpnew_pkg::OP_BITS         ),
-    .USE_FPU_OPT_ALLOC   ("FALSE"),
-    .USE_FPNEW_OPT_ALLOC ("TRUE"),
-    .FPNEW_INTECO_TYPE   ("SINGLE_INTERCO")
+    .C_FPNEW_FMTBITS     ( fpnew_pkg::FP_FORMAT_BITS  ),
+    .C_FPNEW_IFMTBITS    ( fpnew_pkg::INT_FORMAT_BITS ),
+    .C_ROUND_BITS        ( 3                          ),
+    .C_FPNEW_OPBITS      ( fpnew_pkg::OP_BITS         ),
+    .USE_FPU_OPT_ALLOC   ( "FALSE"                    ),
+    .USE_FPNEW_OPT_ALLOC ( "TRUE"                     ),
+    .FPNEW_INTECO_TYPE   ( "SINGLE_INTERCO"           )
   ) i_shared_fpu_cluster (
-    .clk                   ( clk_cluster                               ),
-    .rst_n                 ( s_rst_n                                   ),
-    .test_mode_i           ( test_mode_i                               ),
-    .core_slave_req_i      ( s_apu_master_req                          ),
-    .core_slave_gnt_o      ( s_apu_master_gnt                          ),
-    .core_slave_type_i     ( s_apu__type                               ),
-    .core_slave_operands_i ( s_apu__operands                           ),
-    .core_slave_op_i       ( s_apu__op                                 ),
-    .core_slave_flags_i    ( s_apu__flags                              ),
-    .core_slave_rready_i   ( s_apu_master_rready                       ),
-    .core_slave_rvalid_o   ( s_apu_master_rvalid                       ),
-    .core_slave_rdata_o    ( s_apu_master_rdata                        ),
-    .core_slave_rflags_o   ( s_apu__rflags                             )
+    .clk                   ( clk_cluster         ),
+    .rst_n                 ( s_rst_n             ),
+    .test_mode_i           ( test_mode_i         ),
+    .core_slave_req_i      ( s_apu_master_req    ),
+    .core_slave_gnt_o      ( s_apu_master_gnt    ),
+    .core_slave_type_i     ( s_apu__type         ),
+    .core_slave_operands_i ( s_apu__operands     ),
+    .core_slave_op_i       ( s_apu__op           ),
+    .core_slave_flags_i    ( s_apu__flags        ),
+    .core_slave_rready_i   ( s_apu_master_rready ),
+    .core_slave_rvalid_o   ( s_apu_master_rvalid ),
+    .core_slave_rdata_o    ( s_apu_master_rdata  ),
+    .core_slave_rflags_o   ( s_apu__rflags       )
   );
 `endif
 
@@ -1174,8 +1171,7 @@ module pulp_cluster
         .evt_o             ( s_hwpe_evt                                         ),
         .busy_o            ( s_hwpe_busy                                        )
       );
-    end
-    else begin : no_hwpe_gen
+    end else begin : no_hwpe_gen
       assign s_hwpe_cfg_bus.r_valid = '1;
       assign s_hwpe_cfg_bus.gnt     = '1;
       assign s_hwpe_cfg_bus.r_rdata = 32'hdeadbeef;
@@ -1188,7 +1184,6 @@ module pulp_cluster
       end
       assign s_hwpe_busy = '0;
       assign s_hwpe_evt  = '0;
-       
     end
   endgenerate
   
@@ -1225,78 +1220,78 @@ module pulp_cluster
     .USE_REDUCED_TAG      ( USE_REDUCED_TAG     ), //= "TRUE",  // TRUE | FALSE
     .L2_SIZE              ( L2_SIZE             )  //= 512*1024 // Size of max(L2 ,ROM) program memory in Byte
   ) icache_top_i (
-    .clk                       ( clk_cluster     ),
-    .rst_n                     ( s_rst_n         ),
-    .test_en_i                 ( test_mode_i     ),
+    .clk                      ( clk_cluster                ),
+    .rst_n                    ( s_rst_n                    ),
+    .test_en_i                ( test_mode_i                ),
 
-    .fetch_req_i               ( instr_req       ),
-    .fetch_addr_i              ( instr_addr      ),
-    .fetch_gnt_o               ( instr_gnt       ),
+    .fetch_req_i              ( instr_req                  ),
+    .fetch_addr_i             ( instr_addr                 ),
+    .fetch_gnt_o              ( instr_gnt                  ),
 
-    .fetch_rvalid_o            ( instr_r_valid   ),
-    .fetch_rdata_o             ( instr_r_rdata   ),
+    .fetch_rvalid_o           ( instr_r_valid              ),
+    .fetch_rdata_o            ( instr_r_rdata              ),
 
-    .enable_l1_l15_prefetch_i  ( s_enable_l1_l15_prefetch ), // set it to 1 to use prefetch feature
+    .enable_l1_l15_prefetch_i ( s_enable_l1_l15_prefetch   ), // set it to 1 to use prefetch feature
 
     //AXI read address bus -------------------------------------------
-    .axi_master_arid_o      ( s_core_instr_bus.ar_id     ),
-    .axi_master_araddr_o    ( s_core_instr_bus.ar_addr   ),
-    .axi_master_arlen_o     ( s_core_instr_bus.ar_len    ),  //burst length - 1 to 16
-    .axi_master_arsize_o    ( s_core_instr_bus.ar_size   ),  //size of each transfer in burst
-    .axi_master_arburst_o   ( s_core_instr_bus.ar_burst  ),  //accept only incr burst=01
-    .axi_master_arlock_o    ( s_core_instr_bus.ar_lock   ),  //only normal access supported axs_awlock=00
-    .axi_master_arcache_o   ( s_core_instr_bus.ar_cache  ),
-    .axi_master_arprot_o    ( s_core_instr_bus.ar_prot   ),
-    .axi_master_arregion_o  ( s_core_instr_bus.ar_region ), //
-    .axi_master_aruser_o    ( s_core_instr_bus.ar_user   ),  //
-    .axi_master_arqos_o     ( s_core_instr_bus.ar_qos    ),  //
-    .axi_master_arvalid_o   ( s_core_instr_bus.ar_valid  ),  //master addr valid
-    .axi_master_arready_i   ( s_core_instr_bus.ar_ready  ),  //slave ready to accept
+    .axi_master_arid_o        ( s_core_instr_bus.ar_id     ),
+    .axi_master_araddr_o      ( s_core_instr_bus.ar_addr   ),
+    .axi_master_arlen_o       ( s_core_instr_bus.ar_len    ),  //burst length - 1 to 16
+    .axi_master_arsize_o      ( s_core_instr_bus.ar_size   ),  //size of each transfer in burst
+    .axi_master_arburst_o     ( s_core_instr_bus.ar_burst  ),  //accept only incr burst=01
+    .axi_master_arlock_o      ( s_core_instr_bus.ar_lock   ),  //only normal access supported axs_awlock=00
+    .axi_master_arcache_o     ( s_core_instr_bus.ar_cache  ),
+    .axi_master_arprot_o      ( s_core_instr_bus.ar_prot   ),
+    .axi_master_arregion_o    ( s_core_instr_bus.ar_region ), //
+    .axi_master_aruser_o      ( s_core_instr_bus.ar_user   ),  //
+    .axi_master_arqos_o       ( s_core_instr_bus.ar_qos    ),  //
+    .axi_master_arvalid_o     ( s_core_instr_bus.ar_valid  ),  //master addr valid
+    .axi_master_arready_i     ( s_core_instr_bus.ar_ready  ),  //slave ready to accept
     // ---------------------------------------------------------------
 
     //AXI BACKWARD read data bus ----------------------------------------------
-    .axi_master_rid_i       ( s_core_instr_bus.r_id     ),
-    .axi_master_rdata_i     ( s_core_instr_bus.r_data   ),
-    .axi_master_rresp_i     ( s_core_instr_bus.r_resp   ),
-    .axi_master_rlast_i     ( s_core_instr_bus.r_last   ), //last transfer in burst
-    .axi_master_ruser_i     ( s_core_instr_bus.r_user   ),
-    .axi_master_rvalid_i    ( s_core_instr_bus.r_valid  ), //slave data valid
-    .axi_master_rready_o    ( s_core_instr_bus.r_ready  ), //master ready to accept
+    .axi_master_rid_i         ( s_core_instr_bus.r_id      ),
+    .axi_master_rdata_i       ( s_core_instr_bus.r_data    ),
+    .axi_master_rresp_i       ( s_core_instr_bus.r_resp    ),
+    .axi_master_rlast_i       ( s_core_instr_bus.r_last    ), //last transfer in burst
+    .axi_master_ruser_i       ( s_core_instr_bus.r_user    ),
+    .axi_master_rvalid_i      ( s_core_instr_bus.r_valid   ), //slave data valid
+    .axi_master_rready_o      ( s_core_instr_bus.r_ready   ), //master ready to accept
 
     // NOT USED ----------------------------------------------
-    .axi_master_awid_o      ( s_core_instr_bus.aw_id     ),
-    .axi_master_awaddr_o    ( s_core_instr_bus.aw_addr   ),
-    .axi_master_awlen_o     ( s_core_instr_bus.aw_len    ),
-    .axi_master_awsize_o    ( s_core_instr_bus.aw_size   ),
-    .axi_master_awburst_o   ( s_core_instr_bus.aw_burst  ),
-    .axi_master_awlock_o    ( s_core_instr_bus.aw_lock   ),
-    .axi_master_awcache_o   ( s_core_instr_bus.aw_cache  ),
-    .axi_master_awprot_o    ( s_core_instr_bus.aw_prot   ),
-    .axi_master_awregion_o  ( s_core_instr_bus.aw_region ),
-    .axi_master_awuser_o    ( s_core_instr_bus.aw_user   ),
-    .axi_master_awqos_o     ( s_core_instr_bus.aw_qos    ),
-    .axi_master_awvalid_o   ( s_core_instr_bus.aw_valid  ),
-    .axi_master_awready_i   ( s_core_instr_bus.aw_ready  ),
+    .axi_master_awid_o        ( s_core_instr_bus.aw_id     ),
+    .axi_master_awaddr_o      ( s_core_instr_bus.aw_addr   ),
+    .axi_master_awlen_o       ( s_core_instr_bus.aw_len    ),
+    .axi_master_awsize_o      ( s_core_instr_bus.aw_size   ),
+    .axi_master_awburst_o     ( s_core_instr_bus.aw_burst  ),
+    .axi_master_awlock_o      ( s_core_instr_bus.aw_lock   ),
+    .axi_master_awcache_o     ( s_core_instr_bus.aw_cache  ),
+    .axi_master_awprot_o      ( s_core_instr_bus.aw_prot   ),
+    .axi_master_awregion_o    ( s_core_instr_bus.aw_region ),
+    .axi_master_awuser_o      ( s_core_instr_bus.aw_user   ),
+    .axi_master_awqos_o       ( s_core_instr_bus.aw_qos    ),
+    .axi_master_awvalid_o     ( s_core_instr_bus.aw_valid  ),
+    .axi_master_awready_i     ( s_core_instr_bus.aw_ready  ),
 
     // NOT USED ----------------------------------------------
-    .axi_master_wdata_o     ( s_core_instr_bus.w_data   ),
-    .axi_master_wstrb_o     ( s_core_instr_bus.w_strb   ),
-    .axi_master_wlast_o     ( s_core_instr_bus.w_last   ),
-    .axi_master_wuser_o     ( s_core_instr_bus.w_user   ),
-    .axi_master_wvalid_o    ( s_core_instr_bus.w_valid  ),
-    .axi_master_wready_i    ( s_core_instr_bus.w_ready  ),
+    .axi_master_wdata_o       ( s_core_instr_bus.w_data    ),
+    .axi_master_wstrb_o       ( s_core_instr_bus.w_strb    ),
+    .axi_master_wlast_o       ( s_core_instr_bus.w_last    ),
+    .axi_master_wuser_o       ( s_core_instr_bus.w_user    ),
+    .axi_master_wvalid_o      ( s_core_instr_bus.w_valid   ),
+    .axi_master_wready_i      ( s_core_instr_bus.w_ready   ),
     // ---------------------------------------------------------------
 
     // NOT USED ----------------------------------------------
-    .axi_master_bid_i       ( s_core_instr_bus.b_id     ),
-    .axi_master_bresp_i     ( s_core_instr_bus.b_resp   ),
-    .axi_master_buser_i     ( s_core_instr_bus.b_user   ),
-    .axi_master_bvalid_i    ( s_core_instr_bus.b_valid  ),
-    .axi_master_bready_o    ( s_core_instr_bus.b_ready  ),
+    .axi_master_bid_i         ( s_core_instr_bus.b_id      ),
+    .axi_master_bresp_i       ( s_core_instr_bus.b_resp    ),
+    .axi_master_buser_i       ( s_core_instr_bus.b_user    ),
+    .axi_master_bvalid_i      ( s_core_instr_bus.b_valid   ),
+    .axi_master_bready_o      ( s_core_instr_bus.b_ready   ),
     // ---------------------------------------------------------------
 
-    .IC_ctrl_unit_bus_pri   ( IC_ctrl_unit_bus_pri      ),
-    .IC_ctrl_unit_bus_main  ( IC_ctrl_unit_bus_main     )
+    .IC_ctrl_unit_bus_pri     ( IC_ctrl_unit_bus_pri       ),
+    .IC_ctrl_unit_bus_main    ( IC_ctrl_unit_bus_main      )
 );
 
 `else
@@ -1411,7 +1406,7 @@ module pulp_cluster
     //AXI PARAMETER
     .AXI_ID                ( AXI_ID_OUT_WIDTH  ),
     .AXI_USER              ( AXI_USER_WIDTH    ),
-    .AXI_DATA              ( AXI_DATA_C2S_WIDTH    ),
+    .AXI_DATA              ( AXI_DATA_C2S_WIDTH ),
     .AXI_ADDR              ( AXI_ADDR_WIDTH    )
   ) icache_top_i (
     // ---------------------------------------------------------------
@@ -1507,12 +1502,12 @@ module pulp_cluster
     .SRAM_ECC  ( ECC>1         ),
     .INTC_ECC  ( ECC>2         )
   ) tcdm_banks_i (
-    .clk_i       ( clk_cluster     ),
-    .rst_ni      ( s_rst_n         ),
-    .init_ni     ( s_init_n        ),
-    .test_mode_i ( test_mode_i     ),
-    .pwdn_i      ( 1'b0            ),
-    .tcdm_slave  ( s_tcdm_bus_sram ),   //PMU ??
+    .clk_i       ( clk_cluster         ),
+    .rst_ni      ( s_rst_n             ),
+    .init_ni     ( s_init_n            ),
+    .test_mode_i ( test_mode_i         ),
+    .pwdn_i      ( 1'b0                ),
+    .tcdm_slave  ( s_tcdm_bus_sram     ),   //PMU ??
     .tcdm_gnt_o  ( s_tcdm_bus_sram_gnt )
   );
   
@@ -1521,11 +1516,11 @@ module pulp_cluster
   //**************** AXI REGISTER SLICES *******************
   //********************************************************
   axi_slice_dc_slave_wrap #(
-    .AXI_ADDR_WIDTH  ( AXI_ADDR_WIDTH         ),
-    .AXI_DATA_WIDTH  ( AXI_DATA_C2S_WIDTH     ),
-    .AXI_USER_WIDTH  ( AXI_USER_WIDTH         ),
-    .AXI_ID_WIDTH    ( AXI_ID_OUT_WIDTH       ),
-    .BUFFER_WIDTH    ( DC_SLICE_BUFFER_WIDTH  )
+    .AXI_ADDR_WIDTH  ( AXI_ADDR_WIDTH        ),
+    .AXI_DATA_WIDTH  ( AXI_DATA_C2S_WIDTH    ),
+    .AXI_USER_WIDTH  ( AXI_USER_WIDTH        ),
+    .AXI_ID_WIDTH    ( AXI_ID_OUT_WIDTH      ),
+    .BUFFER_WIDTH    ( DC_SLICE_BUFFER_WIDTH )
   ) data_master_slice_i (
     .clk_i            ( clk_cluster         ),
     .rst_ni           ( s_rst_n             ),

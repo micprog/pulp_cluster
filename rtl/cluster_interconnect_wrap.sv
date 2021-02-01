@@ -126,8 +126,7 @@ module cluster_interconnect_wrap
   //********************************************************
    
   generate
-    for (genvar i=0; i<NB_CORES; i++)
-    begin : CORE_PERIPH_BIND
+    for (genvar i=0; i<NB_CORES; i++) begin : CORE_PERIPH_BIND
       assign s_core_periph_bus_add[i]      =  core_periph_slave[i].add;
       assign s_core_periph_bus_req[i]      =  core_periph_slave[i].req;
       assign s_core_periph_bus_wdata[i]    =  core_periph_slave[i].wdata;
@@ -142,8 +141,7 @@ module cluster_interconnect_wrap
   endgenerate
 
   generate
-    for (genvar i=0; i<NB_CORES+NB_HWPE_PORTS; i++)
-    begin : CORE_TCDM_BIND
+    for (genvar i=0; i<NB_CORES+NB_HWPE_PORTS; i++) begin : CORE_TCDM_BIND
       assign s_core_tcdm_bus_add[i]      = core_tcdm_slave[i].add;
       assign s_core_tcdm_bus_req[i]      = core_tcdm_slave[i].req;
       assign s_core_tcdm_bus_wdata[i]    = core_tcdm_slave[i].wdata;
@@ -157,8 +155,7 @@ module cluster_interconnect_wrap
   endgenerate
 
   generate
-    for (genvar i=0; i<NB_DMAS; i++)
-    begin : AXI2MEM_BIND
+    for (genvar i=0; i<NB_DMAS; i++) begin : AXI2MEM_BIND
       assign s_dma_bus_add[i]      = ext_slave[i].add;
       assign s_dma_bus_req[i]      = ext_slave[i].req;
       assign s_dma_bus_wdata[i]    = ext_slave[i].wdata;
@@ -172,8 +169,7 @@ module cluster_interconnect_wrap
   endgenerate
 
   generate
-    for (genvar i=0; i<NB_DMAS; i++)  //4 takes into account the 4 ports used in axi2mem
-    begin : DMAS_BIND
+    for (genvar i=0; i<NB_DMAS; i++) begin : DMAS_BIND //4 takes into account the 4 ports used in axi2mem
       assign s_dma_bus_add[i+4]    = dma_slave[i].add;
       assign s_dma_bus_req[i+4]    = dma_slave[i].req;
       assign s_dma_bus_wdata[i+4]  = dma_slave[i].wdata;
@@ -187,8 +183,7 @@ module cluster_interconnect_wrap
   endgenerate
 
   generate
-    for (genvar i=0; i<NB_MPERIPHS; i++)
-    begin : MPERIPHS_BIND
+    for (genvar i=0; i<NB_MPERIPHS; i++) begin : MPERIPHS_BIND
       assign s_mperiph_bus_add[i]      = mperiph_slave[i].add;
       assign s_mperiph_bus_req[i]      = mperiph_slave[i].req;
       assign s_mperiph_bus_wdata[i]    = mperiph_slave[i].wdata;
@@ -203,9 +198,7 @@ module cluster_interconnect_wrap
   endgenerate
 
   generate
-    for (genvar i=0; i<NB_TCDM_BANKS; i++)
-    begin : TCDM_BANKS_BIND
-
+    for (genvar i=0; i<NB_TCDM_BANKS; i++) begin : TCDM_BANKS_BIND
       assign tcdm_sram_master[i].req   = s_tcdm_bus_sram_req   [i];
       assign tcdm_sram_master[i].add   = s_tcdm_bus_sram_add   [i];
       assign tcdm_sram_master[i].wen   = s_tcdm_bus_sram_wen   [i];
@@ -213,21 +206,18 @@ module cluster_interconnect_wrap
       assign tcdm_sram_master[i].be    = s_tcdm_bus_sram_be    [i];
       assign s_tcdm_bus_sram_rdata[i]  = tcdm_sram_master[i].rdata;
 
-      always_ff @(posedge clk_i or negedge rst_ni) 
-      begin : TCDM_BANKS_RESP
-        if(~rst_ni)
-        begin
+      always_ff @(posedge clk_i or negedge rst_ni) begin : TCDM_BANKS_RESP
+        if(~rst_ni) begin
           s_tcdm_bus_sram_rID[i]    <= '0;
           s_tcdm_bus_sram_rvalid[i] <= 1'b0;
           s_data_ts_set_q[i]         <= '0;
-        end
-        else 
-        begin
+        end else begin
           s_data_ts_set_q[i]        <= s_data_ts_set_int[i];
                                             // NORMAL MODE//                                                                       // DURING SET
           s_tcdm_bus_sram_rvalid[i] <= tcdm_gnt_i[i] & (( s_tcdm_bus_sram_req[i] & ~s_data_ts_set_int[i]  & ~s_data_ts_set_q[i] ) | (s_tcdm_bus_sram_req[i] & ~s_data_ts_set_int[i]  & s_data_ts_set_q[i] ));
-          if(s_tcdm_bus_sram_req[i])
+          if(s_tcdm_bus_sram_req[i]) begin
             s_tcdm_bus_sram_rID[i] <= s_tcdm_bus_sram_ID[i];
+          end
         end
       end
 
@@ -235,8 +225,7 @@ module cluster_interconnect_wrap
   endgenerate
 
   generate
-    for (genvar i=0; i<NB_SPERIPHS; i++)
-    begin : SPERIPHS_BIND
+    for (genvar i=0; i<NB_SPERIPHS; i++) begin : SPERIPHS_BIND
       assign speriph_master[i].add       = s_speriph_bus_add[i];
       assign speriph_master[i].req       = s_speriph_bus_req[i];
       assign speriph_master[i].wdata     = s_speriph_bus_wdata[i];
@@ -255,8 +244,7 @@ module cluster_interconnect_wrap
   //-********************************************************
   //-*********** LOGARITHMIC INTERCONNECT TO TCDM ***********
   //-********************************************************
-  XBAR_TCDM
-  #(
+  XBAR_TCDM #(
     .N_CH0           ( NB_CORES+NB_HWPE_PORTS             ),
     .N_CH1           ( NB_DMAS+4                          ),
     .N_SLAVE         ( NB_TCDM_BANKS                      ),
@@ -269,9 +257,7 @@ module cluster_interconnect_wrap
     .TEST_SET_BIT    ( TEST_SET_BIT                       ),
 
     .ADDR_MEM_WIDTH  ( ADDR_MEM_WIDTH                     )
-  )
-  i_XBAR_TCDM
-  (
+  ) i_XBAR_TCDM (
     // ---------------- MASTER CH0+CH1 SIDE  --------------------------
     .data_req_i          (  {s_dma_bus_req,     s_core_tcdm_bus_req}      ),
     .data_add_i          (  {s_dma_bus_add,     s_core_tcdm_bus_add}      ),
@@ -305,8 +291,7 @@ module cluster_interconnect_wrap
   //********************************************************
   //******* LOGARITHMIC INTERCONNECT TO PERIPHERALS ********
   //********************************************************
-  XBAR_PE
-  #(
+  XBAR_PE #(
     .N_CH0              ( NB_CORES             ),
     .N_CH1              ( NB_MPERIPHS          ),
     .N_SLAVE            ( NB_SPERIPHS          ),
@@ -321,9 +306,7 @@ module cluster_interconnect_wrap
     .PE_ROUTING_LSB     ( PE_ROUTING_LSB       ),
     .PE_ROUTING_MSB     ( PE_ROUTING_MSB       ),
     .CLUSTER_ALIAS_BASE ( CLUSTER_ALIAS_BASE   )
-  )
-  xbar_pe_inst
-  (
+  ) xbar_pe_inst (
     .clk              ( clk_i),
     .rst_n            ( rst_ni),
     

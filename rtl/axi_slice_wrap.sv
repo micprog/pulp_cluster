@@ -35,8 +35,7 @@ module axi_slice_wrap
    
   generate
 
-    if( SLICE_DEPTH > 1)
-    begin : WITH_SLICE
+    if( SLICE_DEPTH > 1) begin : WITH_SLICE
       axi_slice #(
         .AXI_ADDR_WIDTH (AXI_ADDR_WIDTH),
         .AXI_DATA_WIDTH (AXI_DATA_WIDTH),
@@ -146,9 +145,7 @@ module axi_slice_wrap
         .axi_master_b_user_i   ( axi_master.b_user                 ),
         .axi_master_b_ready_o  ( axi_master.b_ready                )
       );
-    end
-    else
-    begin : NO_SLICE
+    end else begin : NO_SLICE
       assign axi_master.aw_valid                  =  axi_slave.aw_valid                ;
       assign axi_master.aw_addr                   =  axi_slave.aw_addr                 ;            
       assign axi_master.aw_prot                   =  axi_slave.aw_prot                 ;
